@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Test article</title>
+    <link rel="stylesheet" href="_styles.css">
+    <link rel="stylesheet" href="../katex_style.css">
+    <script defer src="../katex.js"></script>
+    <script defer src="../autorend.js" onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+    <div class="main">
+        <h1>Main Test</h1>
+            <h2>1 Test</h2>
+                <span class="text">
+                    Some test, some test,
+                    Inline: \( E = m c^2 \)
+                </span>
+            <h2>2 Test</h2>
+                <span class="text">
+                    Anoter test, another test
+                </span>
+                \[\ ax^2+bx+c=0 \]
+                \[x=\frac{-b\pm\sqrt{b^2-4ac}}{2a}\]
+    </div>
+</body>
+</html>

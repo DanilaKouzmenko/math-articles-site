@@ -1,0 +1,106 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Статьи</title>
+    <style>
+        body{
+            padding: 0px;
+            margin: 0px;
+            background-color: #404040;
+            display: flex;
+            justify-content: center;
+        }
+
+        .card {
+            position: relative;
+            margin-left: 10%;
+            margin-right: 10%;
+            margin-top: 15px;
+            border-radius: 10px;
+            width: 80%;
+            height: 80px;
+            background-color: #303030;
+        }
+
+        .app {
+            width: 80%;
+        }
+        
+        a {
+            text-decoration: none;
+        }
+
+        .header {
+            position: absolute;
+            top: 4px;
+            left: 10px;
+            font-size: 19px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-weight: bolder;
+            color: azure;
+        }
+
+        .date {
+            position: absolute;
+            top: 4px; 
+            right: 10px;
+            font-size: 12px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-weight: 500;
+            color: #888;
+        }
+
+        .description {
+            position: absolute;
+            margin-top: 30px;
+            left: 10px;
+            font-size: 13px;
+            font-family: 'Lucida Sans', 'Lucida Sans Regular', 'Lucida Grande', 'Lucida Sans Unicode', Geneva, Verdana, sans-serif;
+            font-weight: bold;
+            color: azure;
+            white-space: nowrap; /* Запрещаем перенос текста */
+            overflow: hidden; /* Скрываем текст, если он выходит за пределы */
+            text-overflow: ellipsis;
+        }
+    </style>
+</head>
+<body>
+    <div class="app">
+        <a href="articles/about.html" target="_blank" rel="noopener noreferrer"><div class="card">
+            <span class="header">Где мы?</span>
+            <span class="description">Небольшая справка об ресурсе</span>
+        </div></a>
+        <!--a href="articles/zerodivision.html" target="_blank" rel="noopener noreferrer"><div class="card">
+            <span class="header">Деление на ноль</span>
+            <span class="date">25.10.2024</span>
+            <span class="description">Введение нового числа ψ, которое при умножении на 0 дает 1.</span>
+        </div></a-->
+        <a href="articles/misunderstanding.html" target="_blank" rel="noopener noreferrer"><div class="card">
+            <span class="header">Непонимание математики</span>
+            <span class="date">01.11.2024</span>
+            <span class="description">Рассмотрение причин, почему так много людей не понимают математику.</span>
+        </div></a>
+        <a href="builded/dev.htm" target="_blank" rel="noopener noreferrer"><div class="card">
+            <span class="header">Периодические числа</span>
+            <span class="date">02.12.2024</span>
+            <span class="description">Я изучил периодические числа на более глубоком уровне и вывел некоторые формулы преобразования.</span>
+        </div></a>
+        <a href="builded/matlib.htm" target="_blank" rel="noopener noreferrer"><div class="card">
+            <span class="header">Функции в компьютере</span>
+            <span class="date">05.01.2025</span>
+            <span class="description">В этой статье я приоткрыл капот большинства математических библиотек в языках программирования.</span>
+        </div></a>
+        <div class="card">
+            <span class="header">Понравились статьи?</span>
+            <a class="date" href="https://t.me/matkrieg">Подписаться</a>
+            <span class="description">В Telegram канале сразу придет уведомление о новой статье</span>
+        </div>
+    </div>
+</body>
+</html>

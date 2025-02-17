@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Нулевое деление</title>
+    <link rel="stylesheet" href="_styles.css">
+    <link rel="stylesheet" href="../katex_style.css">
+    <script defer src="../katex.js"></script>
+    <script defer src="../autorend.js" onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+    <div class="main">
+        <h1>Деление на 0</h1>
+            <h1>Введение</h1>
+                    <span class="text">
+                        Все со школы знают, что деление на 0 не имеет смысла, но давайте я изменю это правило, и теперь \(\psi\) - 
+                        такое число, которое при умножении на 0 дает 1. Из \(0\psi=1\) можно сделать вывод, что \(\psi=\frac{1}{0}\).
+                    </span>
+                <h2 id="bases">Базовые операции</h2>
+                    <span class="text">
+                        Быстро пробежимся по свойствам:
+                        \[\psi^x=\frac{1^x}{0^x}=\frac{1}{0}=\psi\]
+                        \[\psi^0=\frac{1^0}{0^0}=\frac{1}{1}=1\]
+                        \[\frac{\psi}{\psi}=\frac{1}{0}\cdot\frac{0}{1}=\frac{1}{0}\cdot0=1\]
+                        \[\frac{x}{0}=x\cdot\frac{1}{0}=x\psi\]
+                    </span>
+            <h1>Арифметика</h1>
+                <h2>Сложение и Вычитание</h2>
+                    <span class="text">
+                        \[a+b\psi=\frac{a}{1}+\frac{b}{0}\]
+                        1 и 0 не имеют общих кратных, которые бы привели к общему знаменателю. Поэтому можно оставить число в виде многочлена.
+                        \[a\psi + b\psi =\frac{a}{0}+\frac{b}{0}=\frac{a+b}{0}=\psi(a+b)\]
+                        Сложение подобных членов работает. Это отличный результат!
+                    </span>
+                <h2>Умножение</h2>
+                    <span class="text">
+                        На этом разделе нет смысла останавливаться, ведь он хорошо описн в <a href="#bases">базе</a>
+                    </span>
+                <h2>Деление</h2>
+                    <span class="text">
+                        \[\frac{a\psi}{b}=\frac{a}{0}\cdot\frac{a}{b\cdot0}=\frac{a}{0}=a\psi\]
+                        \[\frac{a}{b\psi}=\frac{a}{b}\cdot\frac{0}{1}=\frac{a}{b}\cdot0=0\]
+                        Как мы видим, "нулевое" число при делении остается со своим коэффициентом, а на него - остается 0.
+                    </span>
+            <h1>Математический анализ</h1>
+                <h2>Степень \(\psi\)</h2>
+                    <span class="text">
+                        \[
+                            a^{b\psi}=e^{\ln(a^{b\psi})}=e^{b\psi\cdot\ln(a)}=\sum^\infty_{n=0}\frac{(b\psi\cdot\ln(a))^n}{n!}
+                        \]
+                        Попробуем подсчитать примерное значение
+                        \[
+                            2^{\psi}\approx 1 + \psi\ln(2) + \frac{\psi\ln(2)^2}{2} + \frac{\psi\ln(2)^3}{6} + ...
+                        \]
+                        Как мы видим, часть многочлена с \(\psi\) постоянно увеличивается,
+                    </span>
+    </div>
+</body>
+</html>

@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Функции в компьютере</title>
+    <link rel="stylesheet" href="_styles.css">
+    <link rel="stylesheet" href="../katex_style.css">
+    <script defer src="../katex.js"></script>
+    <script defer src="../autorend.js" onload="renderMathInElement(document.body);"></script>
+</head>
+<body>
+    <div class="main">
+        <h1>Как компьютер считает различные функции</h1>
+                <txt>
+                    В математике есть очень много различных функций с различным смыслом. Но у компьютера есть доступ только к базовым 
+                    арифметическим операциям (сложение, вычитание, умножение, деление). В этой статье я покажу и расскажу про все приёмы для 
+                    их реализаций. Я буду писать код на <a href="https://www.rust-lang.org/">Rust</a>. <br>
+                    Пусть \(x\) - искомый корень, \(a\) - число, входящее в функцию
+                </txt>
+            <h2>Квадратный корень</h2>
+            <h3>Метод половинного деления</h3>
+                <txt>
+                    Его смысл заключается в том, чтобы запереть число в некоторые рамки, а потом их сужать. Для начала можно взять рамки 
+                    из 2 ближайших корней с натуральным результатом.<br/>
+                </txt>
+                <txt>
+                    Если \(a=7\), тогда \(x=\sqrt{7}\). Очевидно, что \(4&lt;7&lt;9\) следовательно 
+                    \(
+                        \sqrt{4}&lt;\sqrt{7}&lt;\sqrt{9}\iff 2&lt;\sqrt{7}&lt;3
+                    \). У чисел можно взять среднее и проверить его, сузив возможные ответы.
+                    \[\frac{2+3}{2}=\frac{5}{2}=2.5; \ 2.5^2=6.25 &lt; 7\]
+                    Результат получился меньше 7, поэтому его можно подставить как меньший ограничитель. \(2.5&lt;\sqrt{7}&lt;3\) и т.д. <br>
+                </txt>
+                <txt>У меня получился вот такой код:</txt>
+                <!-- Thanks to DeepSeek -->
+                <pre class="code">
+<span class="ckw">fn</span> <span class="cfn">sqrt</span>(<span class="cfn">a</span>: <span class="ctype">f32</span>, <span class="cfn">iter</span>: <span class="ctype">usize</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">if</span> <span class="cfn">a</span> <span class="snum">&lt;</span> <span class="snum">0.0</span> {
+        <span class="ckw">panic!</span>(<span class="cstr">"Negative square root"</span>); <span class="ccomment">// при отрицательных значениях</span>
+    }
+    <span class="ckw">if</span> <span class="cfn">a</span> <span class="snum">==</span> <span class="snum">0.0</span> <span class="snum">||</span> <span class="cfn">a</span> <span class="snum">==</span> <span class="snum">1.0</span> {
+        <span class="ckw">return</span> <span class="cfn">a</span>;
+    }
+
+    <span class="ckw">let</span> <span class="ckw">mut</span> <span class="cfn">max</span> <span class="snum">=</span> <span class="snum">0.0</span>;
+    <span class="ckw">while</span> <span class="cfn">max</span> <span class="snum">*</span> <span class="cfn">max</span> <span class="snum">&lt;</span> <span class="cfn">a</span> {
+        <span class="cfn">max</span> <span class="snum">+=</span> <span class="snum">1.0</span>;
+    }
+
+    <span class="ckw">let</span> <span class="ckw">mut</span> <span class="cfn">min</span> <span class="snum">=</span> <span class="cfn">max</span> <span class="snum">-</span> <span class="snum">1.0</span>;
+    <span class="ckw">for</span> <span class="cfn">_</span> <span class="ckw">in</span> <span class="snum">0..iter</span> {
+        <span class="ckw">let</span> <span class="cfn">x</span> <span class="snum">=</span> (<span class="cfn">max</span> <span class="snum">+</span> <span class="cfn">min</span>) <span class="snum">/</span> <span class="snum">2.0</span>;
+
+        <span class="ckw">if</span> <span class="cfn">x</span> <span class="snum">*</span> <span class="cfn">x</span> <span class="snum">==</span> <span class="cfn">a</span> {
+            <span class="ckw">return</span> <span class="cfn">x</span>;
+        } <span class="ckw">else</span> <span class="ckw">if</span> <span class="cfn">x</span> <span class="snum">*</span> <span class="cfn">x</span> <span class="snum">&gt;</span> <span class="cfn">a</span> {
+            <span class="cfn">max</span> <span class="snum">=</span> <span class="cfn">x</span>;
+        } <span class="ckw">else</span> {
+            <span class="cfn">min</span> <span class="snum">=</span> <span class="cfn">x</span>;
+        }
+    }
+
+    (<span class="cfn">min</span> <span class="snum">+</span> <span class="cfn">max</span>) <span class="snum">/</span> <span class="snum">2.0</span>
+}
+    </pre>
+            <h3>Метод Ньютона</h3>
+                <txt>
+                    Чтобы понять суть этого пути, нужно рассмотреть вот такое тождество:
+                </txt>
+                \[\frac{a}{\sqrt a}=\frac{a^1}{a^{0.5}}=a^{1-0.5}=a^{0.5}=\sqrt a\]
+                <txt>
+                    У приближения и отношения числа к нему можно взять среднее и быстро приближаться к результату. Этот алгоритм также можно
+                    описать через прогрессию:
+                </txt>
+                \[x_{n+1}=\frac{1}{2}(x_n+\frac{a}{x_n})\]
+                <pre class="code">
+<span class="ckw">fn</span> <span class="cfn">sqrt</span>(<span class="cfn">a</span>: <span class="ctype">f32</span>, <span class="cfn">iter</span>: <span class="ctype">usize</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">if</span> <span class="cfn">a</span> <span class="snum">&lt;</span> <span class="snum">0.0</span> {
+        <span class="ckw">panic!</span>(<span class="cstr">"Negative square root"</span>); <span class="ccomment">// при отрицательных значениях</span>
+    }
+    <span class="ckw">if</span> <span class="cfn">a</span> <span class="snum">==</span> <span class="snum">0.0</span> <span class="snum">||</span> <span class="cfn">a</span> <span class="snum">==</span> <span class="snum">1.0</span> {
+        <span class="ckw">return</span> <span class="cfn">a</span>;
+    }
+
+    <span class="ckw">let</span> <span class="ckw">mut</span> <span class="cfn">x</span> <span class="snum">=</span> <span class="snum">0.0</span>;
+    <span class="ckw">while</span> <span class="cfn">x</span> <span class="snum">*</span> <span class="cfn">x</span> <span class="snum">&lt;</span> <span class="cfn">a</span> {
+        <span class="cfn">x</span> <span class="snum">+=</span> <span class="snum">1.0</span>;
+    }
+
+    <span class="ckw">for</span> <span class="cfn">_</span> <span class="ckw">in</span> <span class="snum">0..iter</span> {
+        <span class="cfn">x</span> <span class="snum">=</span> <span class="snum">0.5</span> <span class="snum">*</span> (<span class="cfn">x</span> <span class="snum">+</span> <span class="cfn">a</span> <span class="snum">/</span> <span class="cfn">x</span>);
+    }
+
+    <span class="ckw">return</span> <span class="cfn">x</span>;
+}
+    </pre>
+            <h2>Тригонометрические функции</h2>
+            <h3>Синус и косинус</h3>
+                <txt>Тут я решил обойтись рядом Тейлора и взял 6 членов.</txt>
+                <pre class="code">
+<span class="ckw">fn</span> <span class="cfn">sin</span>(<span class="cfn">a</span>: <span class="ctype">f32</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">let</span> <span class="cfn">aa</span> <span class="snum">=</span> <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">a</span>;
+    <span class="ckw">return</span> <span class="cfn">a</span> <span class="snum">-</span> <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">6.0</span> <span class="snum">+</span> <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">120.0</span> <span class="snum">-</span>
+           <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">5040.0</span> <span class="snum">+</span> <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">362880.0</span>
+           <span class="snum">-</span> <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">39916800.0</span>;
+}
+
+<span class="ckw">fn</span> <span class="cfn">cos</span>(<span class="cfn">a</span>: <span class="ctype">f32</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">let</span> <span class="cfn">aa</span> <span class="snum">=</span> <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">a</span>;
+    <span class="ckw">return</span> <span class="snum">1.0</span> <span class="snum">-</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">2.0</span> <span class="snum">+</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">24.0</span> <span class="snum">-</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">720.0</span> <span class="snum">+</span>
+           <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">40320.0</span> <span class="snum">-</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> 
+           <span class="snum">3628800.0</span> <span class="snum">+</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">*</span> <span class="cfn">aa</span> <span class="snum">/</span> <span class="snum">479001600.0</span>;
+}
+    </pre>
+            <h3>Тангенс и котангенс</h3>
+                <txt>
+                    В этом случае можно обойтись делением прошлых функций на себя, но это может быть не так быстро, как я хочу. Я нашел вот 
+                    такую реализацию:
+                </txt>
+                <pre class="code">
+<span class="ckw">fn</span> <span class="cfn">tan</span>(<span class="cfn">a</span>: <span class="ctype">f32</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">let</span> <span class="cfn">aa</span> <span class="snum">=</span> <span class="cfn">a</span> <span class="snum">*</span> <span class="cfn">a</span>;
+    <span class="ckw">let</span> <span class="ckw">mut</span> <span class="cfn">term</span> <span class="snum">=</span> <span class="cfn">a</span>;
+    <span class="ckw">let</span> <span class="ckw">mut</span> <span class="cfn">result</span> <span class="snum">=</span> <span class="cfn">a</span>;
+
+    <span class="ckw">for</span> <span class="cfn">n</span> <span class="ckw">in</span> <span class="snum">1..7</span> {
+        <span class="cfn">term</span> <span class="snum">*=</span> <span class="snum">-</span><span class="cfn">aa</span> <span class="snum">*</span> (<span class="snum">2</span> <span class="snum">*</span> <span class="cfn">n</span> <span class="snum">-</span> <span class="snum">1</span>) <span class="snum">/</span> (<span class="snum">2</span> <span class="snum">*</span> <span class="cfn">n</span> <span class="snum">+</span> <span class="snum">1</span>);
+        <span class="cfn">result</span> <span class="snum">+=</span> <span class="cfn">term</span>;
+    }
+
+    <span class="ckw">return</span> <span class="cfn">result</span>;
+}
+    </pre>
+                <txt>
+                    Функцию котангенса <s>мне лень писать</s> можно реализовать на основе функции тангенса с минимальными затратами:
+                </txt>
+                <pre class="code">
+<span class="ckw">fn</span> <span class="cfn">cot</span>(<span class="cfn">a</span>: <span class="ctype">f32</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">return</span> <span class="snum">1.0</span> <span class="snum">/</span> <span class="cfn">tan</span>(<span class="cfn">a</span>);
+}
+    </pre>
+            <h2>Логарифмы</h2>
+            <h3>Натуральный логарифм</h3>
+                <txt>
+                    Я решил использовать обычный ряд и немного его улучшить. Чем будет число ближе к точке Абеля (1), тем точнее результат. 
+                    По свойству логарифмов \(\ln(a^b)=b\cdot\ln a\) можно двигать \(a\) к единице таким образом: 
+                </txt>
+                \[
+                    \ln a=\ln((\sqrt{a})^2)=2\cdot\ln(\sqrt a)
+                \]
+                <txt>
+                    Таким образом можно ввести число в рамки с максимально точными результатами, для \(0.6&lt;x&lt;1.4\) будет 12 членов ряда.
+                </txt>
+                <pre class="code">
+<span class="ckw">fn</span> <span class="cfn">ln</span>(<span class="cfn">x</span>: <span class="ctype">f32</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">if</span> <span class="cfn">x</span> <span class="snum">&lt;=</span> <span class="snum">0.0</span> {
+        <span class="ckw">panic!</span>(<span class="cstr">"Unpositive logarithm"</span>);
+    }
+
+    <span class="ckw">let</span> <span class="ckw">mut</span> <span class="cfn">mx</span> <span class="snum">=</span> <span class="cfn">x</span>;
+    <span class="ckw">let</span> <span class="ckw">mut</span> <span class="cfn">mp</span> <span class="snum">=</span> <span class="snum">1.0</span>;
+
+    <span class="ckw">while</span> <span class="cfn">mx</span> <span class="snum">&gt;</span> <span class="snum">1.4</span> <span class="snum">||</span> <span class="cfn">mx</span> <span class="snum">&lt;</span> <span class="snum">0.6</span> { <span class="ccomment">// запираю в рамки</span>
+        <span class="cfn">mp</span> <span class="snum">*=</span> <span class="snum">2.0</span>;
+        <span class="cfn">mx</span> <span class="snum">=</span> <span class="cfn">sqrt</span>(<span class="cfn">mx</span>);
+    }
+
+    <span class="cfn">mx</span> <span class="snum">-=</span> <span class="snum">1.0</span>; <span class="ccomment">// вычитаю 1, так как в ряде ln(1+x)</span>
+
+    <span class="ckw">return</span> <span class="cfn">mp</span> <span class="snum">*</span> (<span class="cfn">mx</span>
+        <span class="snum">-</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">2.0</span>
+        <span class="snum">+</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">3.0</span>
+        <span class="snum">-</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">4.0</span>
+        <span class="snum">+</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">5.0</span>
+        <span class="snum">-</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">6.0</span>
+        <span class="snum">+</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">7.0</span>
+        <span class="snum">-</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">8.0</span>
+        <span class="snum">+</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">9.0</span>
+        <span class="snum">-</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">10.0</span>
+        <span class="snum">+</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">11.0</span>
+        <span class="snum">-</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">*</span> <span class="cfn">mx</span> <span class="snum">/</span> <span class="snum">12.0</span>);
+}
+    </pre>
+            <h3>Логарифм с произвольным основанием</h3>
+                <txt>
+                    Здесь можно использовать 1 свойство и максимально упростить функцию \(\log_b a=\frac{\ln a}{\ln b}\)
+                </txt>
+                <pre class="code">
+<span class="ckw">fn</span> <span class="cfn">log</span>(<span class="cfn">a</span>: <span class="ctype">f32</span>, <span class="cfn">b</span>: <span class="ctype">f32</span>) -&gt; <span class="ctype">f32</span> {
+    <span class="ckw">if</span> <span class="cfn">b</span> <span class="snum">==</span> <span class="snum">1.0</span> {
+        <span class="ckw">panic!</span>(<span class="cstr">"logarithm base is 1"</span>);
+    }
+    <span class="ckw">if</span> <span class="cfn">a</span> <span class="snum">==</span> <span class="snum">1.0</span> {
+        <span class="ckw">return</span> <span class="snum">0.0</span>;
+    }
+    <span class="ckw">if</span> <span class="cfn">a</span> <span class="snum">==</span> <span class="cfn">b</span> {
+        <span class="ckw">return</span> <span class="snum">1.0</span>;
+    }
+
+    <span class="ccomment">// защиты от отрицательных значений не будет, <br>ведь она есть в прошлой функции</span>
+    <span class="ckw">return</span> <span class="cfn">ln</span>(<span class="cfn">a</span>) <span class="snum">/</span> <span class="cfn">ln</span>(<span class="cfn">b</span>);
+}
+    </pre>
+            <h2>Заключение</h2>
+                <txt>У нас получилось создать небольшую математическую библиотеку на Rust.</txt>
+                <txt></txt>
+</body>
+</html>
